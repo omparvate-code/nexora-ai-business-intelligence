@@ -69,6 +69,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://nexora-ai-business-intelligence.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
