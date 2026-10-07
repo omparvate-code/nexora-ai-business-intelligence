@@ -1,0 +1,1 @@
+const os=require('node:os'); const original=os.networkInterfaces; os.networkInterfaces=()=>({lo:[{address:'127.0.0.1',family:'IPv4',internal:true,netmask:'255.0.0.0',mac:'00:00:00:00:00:00',cidr:'127.0.0.1/8'}]});
