@@ -296,50 +296,28 @@ export default function DashboardPage() {
   }, [language]);
 
   const selectModule = (index: number) => {
-    setActiveModule(index);
     setSidebar(false);
 
     if (index === 0) {
       setShowCopilot(true);
-    }
-
-    if (index === 1) {
-      window.location.href = "/intelligence";
       return;
     }
 
-    if (index === 2) {
-      window.location.href = "/revenue";
-      return;
-    }
+    const routes = [
+      "/dashboard",
+      "/intelligence",
+      "/revenue",
+      "/inventory",
+      "/customers",
+      "/finance",
+      "/forecast",
+      "/alerts",
+    ];
 
-    if (index === 3) {
-      window.location.href = "/inventory";
-      return;
-    }
+    const route = routes[index];
 
-    if (index === 4) {
-      window.location.href = "/customers";
-      return;
-    }
-
-    if (index === 5) {
-      window.location.href = "/finance";
-      return;
-    }
-
-    if (index === 6) {
-      window.location.href = "/forecast";
-      return;
-    }
-
-    if (index === 7) {
-      setTimeout(() => {
-        alertsRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }, 100);
+    if (route) {
+      window.location.href = route;
     }
   };
 
