@@ -1,7 +1,12 @@
 "use client";
 
+
 import { FormEvent, useEffect, useState } from "react";
 
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 type Customer = {
   id: number;
   name: string;
@@ -45,13 +50,12 @@ export default function CustomersPage() {
       setIntelligenceLoading(true);
 
       const token =
-        localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
-        sessionStorage.getItem("nexora_access_token");
+        localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token");
 
       if (!token) return;
 
       const response = await fetch(
-        "http://localhost:8000/api/customers/intelligence",
+        `${API_BASE_URL}/api/customers/intelligence`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -85,7 +89,7 @@ export default function CustomersPage() {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/customers",
+        `${API_BASE_URL}/api/customers`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -141,8 +145,8 @@ export default function CustomersPage() {
     try {
       const isEditing = editingCustomer !== null;
       const url = isEditing
-        ? `http://localhost:8000/api/customers/${editingCustomer.id}`
-        : "http://localhost:8000/api/customers";
+        ? `${API_BASE_URL}/api/customers/${editingCustomer.id}`
+        : `${API_BASE_URL}/api/customers`;
 
       const response = await fetch(url, {
         method: isEditing ? "PUT" : "POST",

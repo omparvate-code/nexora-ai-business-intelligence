@@ -1,5 +1,10 @@
 "use client";
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
+
+
 import { useEffect, useState } from "react";
 import { useNexoraLanguage } from "../../i18n/LanguageProvider";
 
@@ -456,7 +461,7 @@ export default function ApiSecurityPage() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/intelligence/summary",
+        `${API_BASE_URL}/api/intelligence/summary`,
         {
           method: "GET",
           headers: {

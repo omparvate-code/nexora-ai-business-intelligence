@@ -1,8 +1,13 @@
 "use client";
 
+
 import { useCallback, useEffect, useState } from "react";
 import { useNexoraLanguage } from "../i18n/LanguageProvider";
 
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 type RevenueSummary = {
   status: string;
   revenue: {
@@ -39,7 +44,6 @@ export default function FinancePage() {
     typeof window === "undefined"
       ? ""
       : localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
-        sessionStorage.getItem("nexora_access_token") ||
         "";
 
   const money = (value: number) =>
@@ -64,8 +68,8 @@ export default function FinancePage() {
       };
 
       const [revenueResponse, expenseResponse] = await Promise.all([
-        fetch("http://localhost:8000/api/revenue/summary", { headers }),
-        fetch("http://localhost:8000/api/expenses", { headers }),
+        fetch(`${API_BASE_URL}/api/revenue/summary`, { headers }),
+        fetch(`${API_BASE_URL}/api/expenses`, { headers }),
       ]);
 
       if (revenueResponse.status === 401 || expenseResponse.status === 401) {
@@ -129,7 +133,7 @@ export default function FinancePage() {
     setSaving(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/expenses", {
+      const response = await fetch(`${API_BASE_URL}/api/expenses`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,

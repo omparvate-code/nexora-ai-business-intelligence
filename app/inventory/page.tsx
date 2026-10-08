@@ -27,7 +27,9 @@ type StockMovement = {
   created_at: string;
 };
 
-const API = "http://localhost:8000";
+const API =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 
 export default function InventoryPage() {
   const { t } = useNexoraLanguage();
@@ -71,8 +73,7 @@ export default function InventoryPage() {
 
   const loadProducts = useCallback(async () => {
     const token =
-      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
-      sessionStorage.getItem("nexora_access_token");
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
       window.location.href = "/login";
@@ -163,8 +164,7 @@ export default function InventoryPage() {
     setError("");
 
     const token =
-      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
-      sessionStorage.getItem("nexora_access_token");
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
       window.location.href = "/login";
@@ -225,8 +225,7 @@ export default function InventoryPage() {
     }
 
     const token =
-      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
-      sessionStorage.getItem("nexora_access_token");
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
       window.location.href = "/login";
@@ -289,8 +288,7 @@ export default function InventoryPage() {
     setNotice("");
 
     const token =
-      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
-      sessionStorage.getItem("nexora_access_token");
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
       window.location.href = "/login";

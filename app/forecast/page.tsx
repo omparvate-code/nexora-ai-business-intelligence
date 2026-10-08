@@ -1,5 +1,10 @@
 "use client";
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
+
+
 import { useEffect, useState } from "react";
 import { useNexoraLanguage } from "../i18n/LanguageProvider";
 import type { LanguageCode } from "../i18n/config";
@@ -288,8 +293,8 @@ export default function ForecastPage() {
       }
       const headers = { Authorization: `Bearer ${token}` };
       const [productsResponse, customersResponse] = await Promise.all([
-        fetch("http://localhost:8000/api/products", { headers, cache: "no-store" }),
-        fetch("http://localhost:8000/api/customers", { headers, cache: "no-store" })
+        fetch(`${API_BASE_URL}/api/products`, { headers, cache: "no-store" }),
+        fetch(`${API_BASE_URL}/api/customers`, { headers, cache: "no-store" })
       ]);
       if (productsResponse.status === 401 || customersResponse.status === 401) {
         localStorage.removeItem("nexora_access_token");
@@ -332,7 +337,7 @@ export default function ForecastPage() {
         window.location.href = "/login";
         return;
       }
-      const response = await fetch("http://localhost:8000/api/sales", {
+      const response = await fetch(`${API_BASE_URL}/api/sales`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -358,7 +363,7 @@ export default function ForecastPage() {
       setSaleSuccess(st[9]);
       setSaleOpen(false);
       const summaryResponse = await fetch(
-        "http://localhost:8000/api/revenue/summary",
+        `${API_BASE_URL}/api/revenue/summary`,
         { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
       );
       if (summaryResponse.ok) setData(await summaryResponse.json());
@@ -389,7 +394,7 @@ export default function ForecastPage() {
         }
 
         const response = await fetch(
-          "http://localhost:8000/api/revenue/summary",
+          `${API_BASE_URL}/api/revenue/summary`,
           {
             headers: { Authorization: `Bearer ${token}` },
             cache: "no-store",

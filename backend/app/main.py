@@ -2532,20 +2532,8 @@ def revenue_summary(
     )
 
     # --------------------------------------------------------
-    # REVENUE HEALTH
-    revenue_growth_percent = 0.0
+    # REVENUE HEALTH / REAL GROWTH
     # --------------------------------------------------------
-
-    if total_revenue <= 0:
-        revenue_health_signal = "no_revenue_data"
-    elif revenue_growth_percent < 0:
-        revenue_health_signal = "declining"
-    elif gross_margin_percent < 10:
-        revenue_health_signal = "margin_risk"
-    elif revenue_growth_percent > 0:
-        revenue_health_signal = "healthy_growth"
-    else:
-        revenue_health_signal = "stable"
 
     now = datetime.utcnow()
 
@@ -2565,19 +2553,23 @@ def revenue_summary(
             pass
 
         try:
-            age_days = (now - sale_date).days
+            age_days = (now - sale_date).total_seconds() / 86400
         except TypeError:
+            continue
+
+        # Ignore future-dated sales.
+        if age_days < 0:
             continue
 
         amount = float(sale.total_amount or 0)
 
-        if age_days <= 7:
+        if age_days < 7:
             revenue_7_days += amount
 
-        if age_days <= 30:
+        if age_days < 30:
             revenue_30_days += amount
 
-        if 7 < age_days <= 14:
+        if 7 <= age_days < 14:
             previous_7_days_revenue += amount
 
     average_order_value = (
@@ -2585,6 +2577,10 @@ def revenue_summary(
         if sales
         else 0.0
     )
+
+    # --------------------------------------------------------
+    # REAL WEEK-OVER-WEEK REVENUE GROWTH
+    # --------------------------------------------------------
 
     if previous_7_days_revenue > 0:
         revenue_growth_percent = (
@@ -2596,12 +2592,29 @@ def revenue_summary(
     else:
         revenue_growth_percent = 0.0
 
+    revenue_growth_percent = round(revenue_growth_percent, 2)
+
     if revenue_7_days > previous_7_days_revenue:
         revenue_growth_signal = "positive"
     elif revenue_7_days < previous_7_days_revenue:
         revenue_growth_signal = "declining"
     else:
         revenue_growth_signal = "stable"
+
+    # --------------------------------------------------------
+    # REVENUE HEALTH
+    # --------------------------------------------------------
+
+    if total_revenue <= 0:
+        revenue_health_signal = "no_revenue_data"
+    elif revenue_growth_percent < 0:
+        revenue_health_signal = "declining"
+    elif gross_margin_percent < 10:
+        revenue_health_signal = "margin_risk"
+    elif revenue_growth_percent > 0:
+        revenue_health_signal = "healthy_growth"
+    else:
+        revenue_health_signal = "stable"
 
     # --------------------------------------------------------
     # 7-DAY REVENUE TREND
@@ -2887,19 +2900,23 @@ def copilot_ask(
             pass
 
         try:
-            age_days = (now - sale_date).days
+            age_days = (now - sale_date).total_seconds() / 86400
         except TypeError:
+            continue
+
+        # Ignore future-dated sales.
+        if age_days < 0:
             continue
 
         amount = float(sale.total_amount or 0)
 
-        if age_days <= 7:
+        if age_days < 7:
             revenue_7_days += amount
 
-        if age_days <= 30:
+        if age_days < 30:
             revenue_30_days += amount
 
-        if 7 < age_days <= 14:
+        if 7 <= age_days < 14:
             previous_7_days_revenue += amount
 
     average_order_value = (
