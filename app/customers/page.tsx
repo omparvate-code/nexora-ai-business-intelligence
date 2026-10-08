@@ -37,7 +37,7 @@ export default function CustomersPage() {
   });
 
   const getToken = () =>
-    localStorage.getItem("nexora_access_token") ||
+    localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
     sessionStorage.getItem("nexora_access_token");
 
   const loadCustomerIntelligence = async () => {
@@ -45,7 +45,7 @@ export default function CustomersPage() {
       setIntelligenceLoading(true);
 
       const token =
-        localStorage.getItem("nexora_access_token") ||
+        localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
         sessionStorage.getItem("nexora_access_token");
 
       if (!token) return;

@@ -38,7 +38,7 @@ export default function FinancePage() {
   const token = () =>
     typeof window === "undefined"
       ? ""
-      : localStorage.getItem("nexora_access_token") ||
+      : localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
         sessionStorage.getItem("nexora_access_token") ||
         "";
 

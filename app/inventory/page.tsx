@@ -71,7 +71,7 @@ export default function InventoryPage() {
 
   const loadProducts = useCallback(async () => {
     const token =
-      localStorage.getItem("nexora_access_token") ||
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
       sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
@@ -163,7 +163,7 @@ export default function InventoryPage() {
     setError("");
 
     const token =
-      localStorage.getItem("nexora_access_token") ||
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
       sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
@@ -225,7 +225,7 @@ export default function InventoryPage() {
     }
 
     const token =
-      localStorage.getItem("nexora_access_token") ||
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
       sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
@@ -289,7 +289,7 @@ export default function InventoryPage() {
     setNotice("");
 
     const token =
-      localStorage.getItem("nexora_access_token") ||
+      localStorage.getItem("nexora_access_token") || sessionStorage.getItem("nexora_access_token") ||
       sessionStorage.getItem("nexora_access_token");
 
     if (!token) {
