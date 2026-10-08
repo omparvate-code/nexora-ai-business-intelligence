@@ -150,6 +150,20 @@ export default function DashboardPage() {
     }>
   >([]);
 
+  const [revenueTrend, setRevenueTrend] = useState<
+    Array<{ date: string; revenue: number }>
+  >([]);
+
+  const [revenueHealth, setRevenueHealth] = useState<
+    "no_revenue_data" | "healthy_growth" | "declining" | "margin_risk" | "stable"
+  >("no_revenue_data");
+
+  const [revenueGrowthSignal, setRevenueGrowthSignal] = useState<
+    "positive" | "declining" | "stable"
+  >("stable");
+
+  const [revenueGrowthPercent, setRevenueGrowthPercent] = useState(0);
+
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState("");
 
@@ -224,26 +238,37 @@ export default function DashboardPage() {
 
         setCurrentUser(meData);
 
-        const [summaryResponse, insightsResponse] =
-          await Promise.all([
-            fetch(
-              `${API_BASE_URL}/api/intelligence/summary`,
-              {
-                method: "GET",
-                headers,
-              }
-            ),
-            fetch(
-              `${API_BASE_URL}/api/intelligence/insights?language=${encodeURIComponent(language)}`,
-              {
-                method: "GET",
-                headers,
-              }
-            ),
-          ]);
+        const [
+          summaryResponse,
+          insightsResponse,
+          revenueResponse,
+        ] = await Promise.all([
+          fetch(
+            `${API_BASE_URL}/api/intelligence/summary`,
+            {
+              method: "GET",
+              headers,
+            }
+          ),
+          fetch(
+            `${API_BASE_URL}/api/intelligence/insights?language=${encodeURIComponent(language)}`,
+            {
+              method: "GET",
+              headers,
+            }
+          ),
+          fetch(
+            `${API_BASE_URL}/api/revenue/summary`,
+            {
+              method: "GET",
+              headers,
+            }
+          ),
+        ]);
 
         const summaryData = await summaryResponse.json();
         const insightsData = await insightsResponse.json();
+        const revenueData = await revenueResponse.json();
 
         if (!summaryResponse.ok) {
           throw new Error(
@@ -261,6 +286,14 @@ export default function DashboardPage() {
           );
         }
 
+        if (!revenueResponse.ok) {
+          throw new Error(
+            typeof revenueData?.detail === "string"
+              ? revenueData.detail
+              : "Unable to load revenue intelligence."
+          );
+        }
+
         if (cancelled) return;
 
         setDashboardData(summaryData);
@@ -269,6 +302,24 @@ export default function DashboardPage() {
           Array.isArray(insightsData?.insights)
             ? insightsData.insights
             : []
+        );
+
+        setRevenueTrend(
+          Array.isArray(revenueData?.trend?.daily_revenue)
+            ? revenueData.trend.daily_revenue
+            : []
+        );
+
+        setRevenueHealth(
+          revenueData?.revenue?.health_signal || "no_revenue_data"
+        );
+
+        setRevenueGrowthSignal(
+          revenueData?.revenue?.growth_signal || "stable"
+        );
+
+        setRevenueGrowthPercent(
+          Number(revenueData?.revenue?.growth_percent || 0)
         );
       } catch (error) {
         if (cancelled) return;
@@ -872,15 +923,25 @@ export default function DashboardPage() {
               </div>
 
               <h3>
-                {text("positiveBusinessMomentum", "Your business is showing positive momentum.")}
+                {revenueHealth === "no_revenue_data"
+                  ? "Not enough revenue data yet."
+                  : revenueHealth === "declining"
+                    ? "Revenue is showing a declining trend."
+                    : revenueHealth === "margin_risk"
+                      ? "Revenue is available, but margin needs attention."
+                      : revenueGrowthSignal === "positive"
+                        ? "Your business is showing positive revenue momentum."
+                        : "Your revenue trend is currently stable."}
               </h3>
 
               <p>
-                NEXORA detected stronger
-                customer activity and
-                improving revenue signals
-                compared with the previous
-                period.
+                {revenueHealth === "no_revenue_data"
+                  ? "NEXORA needs completed sales data before it can identify a positive revenue signal."
+                  : revenueGrowthSignal === "positive"
+                    ? `NEXORA detected positive revenue growth of ${revenueGrowthPercent.toFixed(2)}% compared with the previous 7-day period.`
+                    : revenueGrowthSignal === "declining"
+                      ? `NEXORA detected a ${Math.abs(revenueGrowthPercent).toFixed(2)}% decline compared with the previous 7-day period.`
+                      : "NEXORA is monitoring your actual revenue data for a meaningful change."}
               </p>
 
             </div>
@@ -1143,42 +1204,117 @@ export default function DashboardPage() {
 
               <div className="chart-area">
 
-                <div className="chart-y">
+                {(() => {
+                  const trend = revenueTrend.slice(-7);
+                  const maxRevenue = Math.max(
+                    ...trend.map((item) => Number(item.revenue || 0)),
+                    0
+                  );
 
-                  <span>₹40K</span>
-                  <span>₹30K</span>
-                  <span>₹20K</span>
-                  <span>₹10K</span>
-                  <span>₹0</span>
+                  const chartWidth = 700;
+                  const chartHeight = 190;
+                  const paddingX = 10;
+                  const paddingY = 10;
 
-                </div>
+                  const points = trend.map((item, index) => {
+                    const x =
+                      trend.length <= 1
+                        ? chartWidth / 2
+                        : paddingX +
+                          (index / (trend.length - 1)) *
+                            (chartWidth - paddingX * 2);
 
-                <div className="chart">
+                    const y =
+                      maxRevenue <= 0
+                        ? chartHeight - paddingY
+                        : chartHeight -
+                          paddingY -
+                          (Number(item.revenue || 0) / maxRevenue) *
+                            (chartHeight - paddingY * 2);
 
-                  <div className="line line-one" />
-                  <div className="line line-two" />
+                    return {
+                      x,
+                      y,
+                      revenue: Number(item.revenue || 0),
+                      date: item.date,
+                    };
+                  });
 
-                  <span className="point p1" />
-                  <span className="point p2" />
-                  <span className="point p3" />
-                  <span className="point p4" />
-                  <span className="point p5" />
-                  <span className="point p6" />
-                  <span className="point p7" />
+                  const polyline = points
+                    .map((point) => `${point.x},${point.y}`)
+                    .join(" ");
 
-                  <div className="chart-days">
+                  const hasRevenue = trend.some(
+                    (item) => Number(item.revenue || 0) > 0
+                  );
 
-                    <span>01</span>
-                    <span>05</span>
-                    <span>10</span>
-                    <span>15</span>
-                    <span>20</span>
-                    <span>25</span>
-                    <span>30</span>
+                  return (
+                    <>
+                      <div className="chart-y">
+                        <span>
+                          ₹{Math.round(maxRevenue).toLocaleString("en-IN")}
+                        </span>
+                        <span>
+                          ₹{Math.round(maxRevenue * 0.75).toLocaleString("en-IN")}
+                        </span>
+                        <span>
+                          ₹{Math.round(maxRevenue * 0.5).toLocaleString("en-IN")}
+                        </span>
+                        <span>
+                          ₹{Math.round(maxRevenue * 0.25).toLocaleString("en-IN")}
+                        </span>
+                        <span>₹0</span>
+                      </div>
 
-                  </div>
+                      <div className="chart">
+                        {hasRevenue ? (
+                          <svg
+                            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                            preserveAspectRatio="none"
+                            className="revenue-chart-svg"
+                            aria-label="Real revenue trend for the last 7 days"
+                          >
+                            <polyline
+                              points={polyline}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
 
-                </div>
+                            {points.map((point) => (
+                              <circle
+                                key={point.date}
+                                cx={point.x}
+                                cy={point.y}
+                                r="5"
+                                fill="currentColor"
+                              >
+                                <title>
+                                  {point.date}: ₹
+                                  {point.revenue.toLocaleString("en-IN")}
+                                </title>
+                              </circle>
+                            ))}
+                          </svg>
+                        ) : (
+                          <div className="chart-empty">
+                            No revenue data yet
+                          </div>
+                        )}
+
+                        <div className="chart-days">
+                          {trend.map((item) => (
+                            <span key={item.date}>
+                              {new Date(`${item.date}T00:00:00`).getDate()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
 
               </div>
 
@@ -2995,6 +3131,23 @@ export default function DashboardPage() {
         .p5 { left: 64%; top: 36%; }
         .p6 { left: 79%; top: 32%; }
         .p7 { left: 94%; top: 26%; }
+
+        .revenue-chart-svg {
+          width: 100%;
+          height: 190px;
+          display: block;
+          color: #30dff3;
+          overflow: visible;
+        }
+
+        .chart-empty {
+          height: 190px;
+          display: grid;
+          place-items: center;
+          color: #53677d;
+          font-size: 11px;
+          letter-spacing: .3px;
+        }
 
         .chart-days {
           position: absolute;
