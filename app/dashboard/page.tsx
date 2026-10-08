@@ -153,6 +153,34 @@ export default function DashboardPage() {
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState("");
 
+  const [currentUser, setCurrentUser] = useState<{
+    user_id?: number;
+    business_id?: number;
+    email?: string;
+    role?: string;
+    owner_name?: string;
+    business_name?: string;
+    business_type?: string;
+  } | null>(null);
+
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:8000";
+
+  const ownerName =
+    currentUser?.owner_name?.trim() || "NEXORA USER";
+
+  const businessName =
+    currentUser?.business_name?.trim() || "NEXORA WORKSPACE";
+
+  const avatarInitials =
+    ownerName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "NU";
+
   useEffect(() => {
     let cancelled = false;
 
@@ -174,17 +202,39 @@ export default function DashboardPage() {
           Authorization: `Bearer ${token}`,
         };
 
+        const meResponse = await fetch(
+          `${API_BASE_URL}/auth/me`,
+          {
+            method: "GET",
+            headers,
+          }
+        );
+
+        const meData = await meResponse.json();
+
+        if (!meResponse.ok) {
+          throw new Error(
+            typeof meData?.detail === "string"
+              ? meData.detail
+              : "Unable to load user profile."
+          );
+        }
+
+        if (cancelled) return;
+
+        setCurrentUser(meData);
+
         const [summaryResponse, insightsResponse] =
           await Promise.all([
             fetch(
-              "http://localhost:8000/api/intelligence/summary",
+              `${API_BASE_URL}/api/intelligence/summary`,
               {
                 method: "GET",
                 headers,
               }
             ),
             fetch(
-              `http://localhost:8000/api/intelligence/insights?language=${encodeURIComponent(language)}`,
+              `${API_BASE_URL}/api/intelligence/insights?language=${encodeURIComponent(language)}`,
               {
                 method: "GET",
                 headers,
@@ -330,7 +380,7 @@ export default function DashboardPage() {
       });
 
       const response = await fetch(
-        `http://localhost:8000/api/copilot/ask?${params.toString()}`,
+        `${API_BASE_URL}/api/copilot/ask?${params.toString()}`,
         {
           method: "GET",
           headers: {
@@ -428,7 +478,7 @@ export default function DashboardPage() {
             <small>{text("workspace", "WORKSPACE")}</small>
 
             <strong>
-              OM JANTS PARLOUR
+              {businessName}
             </strong>
           </div>
 
@@ -637,13 +687,13 @@ export default function DashboardPage() {
             >
 
               <div className="avatar">
-                OR
+                {avatarInitials}
               </div>
 
               <div className="profile-text">
 
                 <b>
-                  OM RAMAKANT
+                  {ownerName}
                 </b>
 
                 <small>
@@ -729,12 +779,12 @@ export default function DashboardPage() {
               <div className="profile-popup-head">
 
                 <div className="avatar">
-                  OR
+                  {avatarInitials}
                 </div>
 
                 <div>
                   <b>
-                    OM RAMAKANT
+                    {ownerName}
                   </b>
 
                   <small>

@@ -942,11 +942,16 @@ def list_sales(
 def current_user(
     user: User = Depends(get_current_user),
 ):
+    business = user.business
+
     return {
         "user_id": user.id,
         "business_id": user.business_id,
         "email": user.email,
         "role": user.role,
+        "owner_name": business.owner_name if business else "",
+        "business_name": business.business_name if business else "",
+        "business_type": business.business_type if business else "",
     }
 
 
