@@ -838,7 +838,7 @@ export default function DashboardPage() {
                 <br />
 
                 <span>
-                  Om.
+                  {ownerName}.
                 </span>
 
               </h2>
