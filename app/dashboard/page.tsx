@@ -45,7 +45,7 @@ const modules = [
     descKey: "forecastDesc",
   },
   {
-    icon: "!",
+    icon: "⚠",
     nameKey: "riskAlertsModule",
     descKey: "riskAlertsDesc",
   },
@@ -317,7 +317,7 @@ export default function DashboardPage() {
     const route = routes[index];
 
     if (route) {
-      window.location.href = route;
+      window.location.assign(route);
     }
   };
 
