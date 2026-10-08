@@ -58,6 +58,7 @@ type IntelligenceInsightsResponse = {
 };
 
 export default function IntelligencePage() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const { t, language } = useNexoraLanguage();
 
   const [summary, setSummary] =
@@ -92,10 +93,10 @@ export default function IntelligencePage() {
 
       const [summaryResponse, insightsResponse] =
         await Promise.all([
-          fetch("http://localhost:8000/api/intelligence/summary", {
+          fetch(`${API_BASE_URL}/api/intelligence/summary`, {
             headers,
           }),
-          fetch(`http://localhost:8000/api/intelligence/insights?language=${encodeURIComponent(language)}`, {
+          fetch(`${API_BASE_URL}/api/intelligence/insights?language=${encodeURIComponent(language)}`, {
             headers,
           }),
         ]);

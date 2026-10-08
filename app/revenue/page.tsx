@@ -38,6 +38,7 @@ type RevenueData = {
 };
 
 export default function RevenuePage() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const { t } = useNexoraLanguage();
   const [data, setData] = useState<RevenueData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +54,7 @@ export default function RevenuePage() {
       return;
     }
 
-    fetch("http://localhost:8000/api/revenue/summary", {
+    fetch(`${API_BASE_URL}/api/revenue/summary`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
